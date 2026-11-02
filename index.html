@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nour Academy — Espace enseignant</title>
+
+  <!-- Polices : Newsreader (titres) + Inter (texte) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS v4 via CDN (temporaire : à remplacer par Vite + npm) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <style type="text/tailwindcss">
+    /* ---------- 1. Charte graphique ---------- */
+    @theme {
+      --font-sans: "Inter", system-ui, sans-serif;
+      --font-serif: "Newsreader", Georgia, serif;
+
+      --color-paper: #f7f5f0;       /* fond de page        */
+      --color-card: #ffffff;        /* cartes              */
+      --color-line: #e4e0d6;        /* bordures            */
+      --color-ink: #1f1e1b;         /* texte principal     */
+      --color-muted: #6b6860;       /* texte secondaire    */
+      --color-brand: #1f6f5c;       /* couleur Nour        */
+      --color-brand-soft: #e3efe9;
+      --color-alert: #b4472e;       /* erreur / alerte     */
+      --color-alert-soft: #fbece6;
+      --color-ok: #2f7d4f;          /* succès              */
+    }
+
+    /* ---------- 2. États ajoutés / retirés par JavaScript (classList) ---------- */
+    .erreur input   { border-color: var(--color-alert); }
+    .erreur .message { color: var(--color-alert); }
+    .valide input   { border-color: var(--color-ok); }
+    .valide .message { color: var(--color-ok); }
+    .alerte         { border-color: var(--color-alert); background-color: var(--color-alert-soft); }
+  </style>
+</head>
+
+<body class="bg-paper font-sans text-ink antialiased md:flex md:h-dvh md:flex-col">
+
+  <!-- ==================== EN-TÊTE ==================== -->
+  <header class="flex items-center justify-between border-b border-line px-4 py-3 md:px-6">
+    <div class="flex items-center gap-3">
+      <span class="grid size-9 place-items-center rounded-xl bg-brand font-serif text-lg text-white">N</span>
+      <p class="font-serif text-lg">Nour Academy <span class="font-sans text-sm text-muted">/ Espace enseignant</span></p>
+    </div>
+    <p class="hidden text-xs text-muted sm:block">Données fictives · Loi 09-08</p>
+  </header>
+
+
+  <div class="md:grid md:min-h-0 md:flex-1 md:grid-cols-[1fr_18rem] lg:grid-cols-[1fr_22rem]">
+
+    <!-- ==================== ZONE PRINCIPALE : l'appel ==================== -->
+    <main class="p-4 md:overflow-y-auto md:p-8">
+      <div class="mx-auto max-w-3xl">
+
+        <!-- Titre + compteur (US1) -->
+        <div class="flex items-end justify-between gap-3">
+          <div>
+            <p class="text-sm text-muted">Séance du jour</p>
+            <h1 class="font-serif text-3xl md:text-4xl">Faire l'appel</h1>
+          </div>
+          <p id="compteur" class="rounded-full bg-card px-3 py-1 text-sm text-muted ring-1 ring-line" aria-live="polite">15 élèves</p>
+        </div>
+
+
+        <!-- Barre de recherche façon  -->
+        <div class="mt-5 rounded-3xl bg-card p-2 shadow-sm ring-1 ring-line">
+          <label for="recherche" class="sr-only">Rechercher un élève</label>
+          <input id="recherche" type="search" placeholder="Rechercher un élève par prénom ou nom…"
+                 class="h-12 w-full bg-transparent px-4 outline-none placeholder:text-muted">
+
+          <div class="flex flex-wrap gap-2 px-2 pb-1">
+            <label for="filtre-groupe" class="sr-only">Groupe</label>
+            <select id="filtre-groupe" class="h-11 min-w-0 flex-1 rounded-full bg-paper px-4 text-sm sm:flex-none">
+              <option value="">Tous les groupes</option>
+              <!-- Les autres options sont créées en JS depuis le tableau « groupes » -->
+            </select>
+
+            <label for="tri" class="sr-only">Trier</label>
+            <select id="tri" class="h-11 min-w-0 flex-1 rounded-full bg-paper px-4 text-sm sm:flex-none">
+              <option value="">Ordre d'origine</option>
+              <option value="nom">Trier par nom</option>
+              <option value="moyenne">Trier par moyenne</option>
+            </select>
+          </div>
+        </div>
+
+
+        <!-- Formulaire d'ajout, replié par défaut  -->
+        <details class="group mt-4 rounded-2xl bg-card ring-1 ring-line">
+          <summary class="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 font-medium">
+            Ajouter un élève
+            <span class="text-xl text-muted transition group-open:rotate-45">+</span>
+          </summary>
+
+          <form id="form-eleve" novalidate class="grid gap-4 border-t border-line p-4 sm:grid-cols-2">
+
+
+            <!-- Exemple : état VALIDE -->
+            <div class="champ valide">
+              <label for="prenom" class="text-sm font-medium">Prénom</label>
+              <input id="prenom" name="prenom" type="text" autocomplete="off" aria-describedby="prenom-msg"
+                     class="mt-1 h-11 w-full rounded-xl border border-line bg-paper px-3 outline-none focus:border-brand">
+              <p id="prenom-msg" class="message mt-1 text-xs text-muted">Prénom valide.</p>
+            </div>
+
+            <!-- Exemple : état ERREUR -->
+            <div class="champ erreur">
+              <label for="nom" class="text-sm font-medium">Nom</label>
+              <input id="nom" name="nom" type="text" autocomplete="off" aria-describedby="nom-msg"
+                     class="mt-1 h-11 w-full rounded-xl border border-line bg-paper px-3 outline-none focus:border-brand">
+              <p id="nom-msg" class="message mt-1 text-xs text-muted">2 caractères minimum : lettres, espaces ou tirets.</p>
+            </div>
+
+            <div class="champ">
+              <label for="groupe" class="text-sm font-medium">Groupe</label>
+              <select id="groupe" name="groupe" aria-describedby="groupe-msg"
+                      class="mt-1 h-11 w-full rounded-xl border border-line bg-paper px-3">
+                <option value="">Choisir un groupe</option>
+              </select>
+              <p id="groupe-msg" class="message mt-1 text-xs text-muted">Groupe de l'élève.</p>
+            </div>
+
+            <div class="champ">
+              <label for="email" class="text-sm font-medium">Email du parent</label>
+              <input id="email" name="email" type="email" autocomplete="off" aria-describedby="email-msg"
+                     class="mt-1 h-11 w-full rounded-xl border border-line bg-paper px-3 outline-none focus:border-brand">
+              <p id="email-msg" class="message mt-1 text-xs text-muted">Exemple : parent@mail.ma</p>
+            </div>
+
+            <div class="champ">
+              <label for="telephone" class="text-sm font-medium">Téléphone du parent</label>
+              <input id="telephone" name="telephone" type="tel" autocomplete="off" aria-describedby="telephone-msg"
+                     class="mt-1 h-11 w-full rounded-xl border border-line bg-paper px-3 outline-none focus:border-brand">
+              <p id="telephone-msg" class="message mt-1 text-xs text-muted">06 / 07 ou +212 6 / 7, puis 8 chiffres.</p>
+            </div>
+
+            <div class="champ">
+              <label for="code" class="text-sm font-medium">Code d'accès provisoire</label>
+              <input id="code" name="code" type="password" autocomplete="new-password" aria-describedby="code-msg"
+                     class="mt-1 h-11 w-full rounded-xl border border-line bg-paper px-3 outline-none focus:border-brand">
+              <!-- Jauge de robustesse (B2) -->
+              <meter id="code-force" min="0" max="3" low="1.5" high="2.5" optimum="3" value="0" class="mt-2 h-2 w-full"></meter>
+              <p id="code-msg" class="message mt-1 text-xs text-muted">8 caractères min., 1 majuscule, 1 chiffre, 1 caractère spécial.</p>
+            </div>
+
+            <!-- Messages globaux du formulaire  -->
+            <p id="form-succes" class="rounded-xl bg-brand-soft p-3 text-sm text-ok sm:col-span-2" hidden>Élève ajouté avec succès.</p>
+            <p id="form-erreur" class="rounded-xl bg-alert-soft p-3 text-sm text-alert sm:col-span-2" hidden>Ce groupe est complet (15 élèves).</p>
+
+            <button type="submit" class="h-11 rounded-full bg-ink px-6 font-medium text-white hover:bg-brand sm:col-span-2 sm:justify-self-end">
+              Ajouter l'élève
+            </button>
+          </form>
+        </details>
+
+
+        <!-- Liste des élèves -->
+        <ul id="liste-eleves" class="mt-4 grid gap-3">
+
+          <!-- =====================================================
+               EXEMPLES DE LIGNES — à SUPPRIMER du HTML.
+               Elles montrent ce que creerLigne() doit fabriquer
+               avec createElement, textContent et classList.
+               ===================================================== -->
+
+          <!-- Ligne normale -->
+          <li class="rounded-2xl border border-line bg-card p-3" data-id="1">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+
+              <button type="button" class="btn-fiche flex min-h-11 flex-1 items-center gap-3 text-left">
+                <span class="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft text-sm font-semibold text-brand">SA</span>
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate font-medium">Sara Alaoui</span>
+                  <span class="block text-sm text-muted">1 absence</span>
+                </span>
+                <span class="font-serif text-xl">13,5 / 20</span>
+              </button>
+
+              <div class="flex gap-2">
+                <button type="button" class="btn-absent h-11 rounded-full border border-line px-3 sm:px-4 text-sm font-medium hover:bg-paper">Absent</button>
+                <label class="flex-1">
+                  <span class="sr-only">Note sur 20</span>
+                  <input type="number" min="0" max="20" step="0.5" placeholder="Note"
+                         class="h-11 w-full rounded-full border border-line bg-paper px-4 text-sm lg:w-24">
+                </label>
+                <button type="button" class="btn-note h-11 rounded-full bg-ink px-3 sm:px-4 text-sm font-medium text-white hover:bg-brand">Ajouter la note</button>
+              </div>
+            </div>
+            <p class="message mt-2 text-xs text-alert" hidden>La note doit être un nombre entre 0 et 20.</p>
+          </li>
+
+          <!-- Ligne sans note + note refusée (message visible) -->
+          <li class="rounded-2xl border border-line bg-card p-3" data-id="2">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+
+              <button type="button" class="btn-fiche flex min-h-11 flex-1 items-center gap-3 text-left">
+                <span class="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft text-sm font-semibold text-brand">YM</span>
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate font-medium">Yassine Mansouri</span>
+                  <span class="block text-sm text-muted">0 absence</span>
+                </span>
+                <span class="font-serif text-xl">—</span>
+              </button>
+
+              <div class="flex gap-2">
+                <button type="button" class="btn-absent h-11 rounded-full border border-line px-3 sm:px-4 text-sm font-medium hover:bg-paper">Absent</button>
+                <label class="flex-1">
+                  <span class="sr-only">Note sur 20</span>
+                  <input type="number" min="0" max="20" step="0.5" placeholder="Note"
+                         class="h-11 w-full rounded-full border border-line bg-paper px-4 text-sm lg:w-24">
+                </label>
+                <button type="button" class="btn-note h-11 rounded-full bg-ink px-3 sm:px-4 text-sm font-medium text-white hover:bg-brand">Ajouter la note</button>
+              </div>
+            </div>
+            <p class="message mt-2 text-xs text-alert">La note doit être un nombre entre 0 et 20.</p>
+          </li>
+
+          <!-- Ligne en ALERTE : classe « alerte » + badge visible -->
+          <li class="alerte rounded-2xl border border-line bg-card p-3" data-id="3">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+
+              <button type="button" class="btn-fiche flex min-h-11 flex-1 items-center gap-3 text-left">
+                <span class="grid size-10 shrink-0 place-items-center rounded-full bg-alert text-sm font-semibold text-white">IB</span>
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate font-medium">Imane Berrada</span>
+                  <span class="block text-sm text-muted">3 absences
+                    <span class="badge ml-1 whitespace-nowrap rounded-full bg-alert px-2 py-0.5 text-xs font-medium text-white">Prévenir les parents</span>
+                  </span>
+                </span>
+                <span class="font-serif text-xl">9 / 20</span>
+              </button>
+
+              <div class="flex gap-2">
+                <button type="button" class="btn-absent h-11 rounded-full border border-line bg-card px-3 sm:px-4 text-sm font-medium hover:bg-paper">Absent</button>
+                <label class="flex-1">
+                  <span class="sr-only">Note sur 20</span>
+                  <input type="number" min="0" max="20" step="0.5" placeholder="Note"
+                         class="h-11 w-full rounded-full border border-line bg-card px-4 text-sm lg:w-24">
+                </label>
+                <button type="button" class="btn-note h-11 rounded-full bg-ink px-3 sm:px-4 text-sm font-medium text-white hover:bg-brand">Ajouter la note</button>
+              </div>
+            </div>
+            <p class="message mt-2 text-xs text-alert" hidden>La note doit être un nombre entre 0 et 20.</p>
+          </li>
+        </ul>
+
+        <!-- Aucun résultat  -->
+        <p id="aucun-resultat" class="mt-4 rounded-2xl border border-dashed border-line p-8 text-center text-muted" hidden>
+          Aucun élève ne correspond à votre recherche.
+        </p>
+
+      </div>
+    </main>
+
+
+    <!-- ==================== PANNEAU LATÉRAL  ==================== -->
+    <aside class="border-t border-line p-4 md:overflow-y-auto md:border-t-0 md:border-l md:p-6" aria-labelledby="titre-bilan">
+      <h2 id="titre-bilan" class="text-xs font-semibold uppercase tracking-wider text-muted">Bilan du groupe</h2>
+
+      <!-- Chiffres clés -->
+      <dl class="mt-3 grid grid-cols-3 gap-2">
+        <div class="rounded-2xl bg-card p-3 ring-1 ring-line">
+          <dt class="text-xs text-muted">Moyenne</dt>
+          <dd id="bilan-moyenne" class="font-serif text-2xl">12,8</dd>
+        </div>
+        <div class="rounded-2xl bg-card p-3 ring-1 ring-line">
+          <dt class="text-xs text-muted">Absences</dt>
+          <dd id="bilan-absences" class="font-serif text-2xl">17</dd>
+        </div>
+        <div class="rounded-2xl bg-alert-soft p-3 ring-1 ring-alert/30">
+          <dt class="text-xs text-alert">Alertes</dt>
+          <dd id="bilan-alertes" class="font-serif text-2xl text-alert">2</dd>
+        </div>
+      </dl>
+
+      <!-- Meilleure moyenne (B4) -->
+      <div class="mt-3 flex items-center gap-3 rounded-2xl bg-brand-soft p-3">
+        <span class="text-xl" aria-hidden="true">★</span>
+        <p class="text-sm">
+          <span class="block text-xs text-brand">Meilleure moyenne</span>
+          <span id="bilan-meilleur" class="font-medium">Rania Tazi — 17,5 / 20</span>
+        </p>
+      </div>
+
+      <!-- Parents à appeler -->
+      <h2 class="mt-6 text-xs font-semibold uppercase tracking-wider text-muted">Parents à appeler</h2>
+
+      <ul id="liste-parents" class="mt-3 grid gap-2 text-sm">
+        <!-- EXEMPLES  -->
+        <li class="rounded-xl bg-card px-3 py-2 ring-1 ring-line">Imane Berrada — 0612345678</li>
+        <li class="rounded-xl bg-card px-3 py-2 ring-1 ring-line">Omar Fassi — 0698765432</li>
+      </ul>
+
+      <!-- Aucun élève en alerte » -->
+      <p id="aucune-alerte" class="mt-3 rounded-xl bg-brand-soft p-3 text-sm text-ok" hidden>Aucun élève en alerte.</p>
+    </aside>
+  </div>
+
+
+  <!-- ==================== FICHE ÉLÈVE  ====================-->
+  <dialog id="fiche" class="m-auto w-[min(28rem,calc(100%-2rem))] rounded-3xl bg-card p-6 text-ink backdrop:bg-ink/40">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h2 id="fiche-nom" class="font-serif text-2xl">Sara Alaoui</h2>
+        <p id="fiche-groupe" class="text-sm text-muted">2e Bac — Mathématiques</p>
+      </div>
+      <form method="dialog">
+        <button class="grid size-11 place-items-center rounded-full hover:bg-paper" aria-label="Fermer">✕</button>
+      </form>
+    </div>
+
+    <h3 class="mt-5 text-xs font-semibold uppercase tracking-wider text-muted">Toutes les notes</h3>
+    <ul id="fiche-notes" class="mt-2 flex flex-wrap gap-2">
+      <li class="rounded-full bg-paper px-3 py-1">14</li>
+      <li class="rounded-full bg-paper px-3 py-1">12,5</li>
+      <li class="rounded-full bg-paper px-3 py-1">14</li>
+    </ul>
+  </dialog>
+
+
+
+  <!-- <script src="data.js"></script> -->
+  <!-- <script src="script.js"></script> -->
+</body>
+</html>
