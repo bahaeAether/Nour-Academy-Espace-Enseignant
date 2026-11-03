@@ -1,15 +1,15 @@
 import { groupes, eleves } from "./data.js";
 
 const filtreGroup = document.getElementById("filtre-groupe");
+const inputRecherche = document.getElementById("recherche");
+const compteur = document.getElementById("compteur");
+const tri = document.getElementById("tri");
+const aucunResultat = document.getElementById("aucun-resultat");
+const listeEleves = document.getElementById("liste-eleves");
+
 groupes.forEach((groupe) => {
   creerOptionGroupe(groupe, filtreGroup);
 });
-
-const inputRecherche = document.getElementById("recherche");
-const compteur = document.getElementById("compteur");
-const tri = document.querySelector("#tri");
-const aucunResultat = document.querySelector("#aucun-resultat");
-const listeEleves = document.getElementById("liste-eleves");
 
 inputRecherche.addEventListener("input", afficherEleves);
 filtreGroup.addEventListener("change", afficherEleves);
@@ -27,8 +27,8 @@ function afficherEleves() {
     );
   });
 
-  if (tri.value === "nom") filtreParNom(elevesFiltres);
-  if (tri.value === "moyenne") filtreParmoyenne(elevesFiltres);
+  if (tri.value === "nom") trierParNom(elevesFiltres);
+  if (tri.value === "moyenne") trierParMoyenne(elevesFiltres);
 
   const lignes = elevesFiltres.map(creerLigne);
   listeEleves.replaceChildren(...lignes);
@@ -159,7 +159,7 @@ function isInFullName(eleve, subName) {
   return fullName.includes(subName.toLowerCase().trim());
 }
 
-function filtreParNom(elevesFiltres) {
+function trierParNom(elevesFiltres) {
   return elevesFiltres.sort((a, b) => {
     const nomA = a.prenom.trim() + a.nom.trim();
     const nomB = b.prenom.trim() + b.nom.trim();
@@ -168,7 +168,7 @@ function filtreParNom(elevesFiltres) {
   });
 }
 
-function filtreParmoyenne(elevesFiltres) {
+function trierParMoyenne(elevesFiltres) {
   return elevesFiltres.sort((a, b) => {
     const moyAstring = calculerMoyenne(a.notes);
     const moyBstring = calculerMoyenne(b.notes);
