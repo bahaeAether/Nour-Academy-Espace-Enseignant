@@ -1,8 +1,7 @@
-
 export const groupes = [
   { id: 1, nom: "2e Bac Sciences", cours: "Mathématiques" },
   { id: 2, nom: "1re Bac Sciences", cours: "Français" },
-  { id: 3, nom: "Tronc Commun", cours: "Physique-Chimie" }
+  { id: 3, nom: "Tronc Commun", cours: "Physique-Chimie" },
 ];
 
 export const eleves = [
@@ -13,7 +12,7 @@ export const eleves = [
     groupeId: 1,
     telephoneParent: "0612345678",
     absences: 1,
-    notes: [12, 15, 13.5]
+    notes: [12, 15, 13.5],
   },
   {
     id: 2,
@@ -22,7 +21,7 @@ export const eleves = [
     groupeId: 1,
     telephoneParent: "0623456789",
     absences: 0,
-    notes: []
+    notes: [],
   },
   {
     id: 3,
@@ -31,7 +30,7 @@ export const eleves = [
     groupeId: 1,
     telephoneParent: "0634567890",
     absences: 3,
-    notes: [9, 9]
+    notes: [9, 9],
   },
   {
     id: 4,
@@ -40,7 +39,7 @@ export const eleves = [
     groupeId: 1,
     telephoneParent: "0645678901",
     absences: 2,
-    notes: [14, 16]
+    notes: [14, 16],
   },
   {
     id: 5,
@@ -49,7 +48,7 @@ export const eleves = [
     groupeId: 1,
     telephoneParent: "0656789012",
     absences: 0,
-    notes: [17, 15, 18]
+    notes: [17, 15, 18],
   },
   {
     id: 6,
@@ -58,7 +57,7 @@ export const eleves = [
     groupeId: 2,
     telephoneParent: "0667890123",
     absences: 1,
-    notes: [11, 13]
+    notes: [11, 13],
   },
   {
     id: 7,
@@ -67,7 +66,7 @@ export const eleves = [
     groupeId: 2,
     telephoneParent: "0678901234",
     absences: 0,
-    notes: [16, 14]
+    notes: [16, 14],
   },
   {
     id: 8,
@@ -76,7 +75,7 @@ export const eleves = [
     groupeId: 2,
     telephoneParent: "0689012345",
     absences: 4,
-    notes: [8, 10]
+    notes: [8, 10],
   },
   {
     id: 9,
@@ -85,7 +84,7 @@ export const eleves = [
     groupeId: 2,
     telephoneParent: "0690123456",
     absences: 2,
-    notes: [13, 15]
+    notes: [13, 15],
   },
   {
     id: 10,
@@ -94,7 +93,7 @@ export const eleves = [
     groupeId: 2,
     telephoneParent: "0601234567",
     absences: 0,
-    notes: [12, 14]
+    notes: [12, 14],
   },
   {
     id: 11,
@@ -103,7 +102,7 @@ export const eleves = [
     groupeId: 3,
     telephoneParent: "0611122233",
     absences: 0,
-    notes: [18, 17]
+    notes: [18, 17],
   },
   {
     id: 12,
@@ -112,7 +111,7 @@ export const eleves = [
     groupeId: 3,
     telephoneParent: "0622233344",
     absences: 3,
-    notes: [10, 11]
+    notes: [10, 11],
   },
   {
     id: 13,
@@ -121,7 +120,7 @@ export const eleves = [
     groupeId: 3,
     telephoneParent: "0633344455",
     absences: 1,
-    notes: [15, 16]
+    notes: [15, 16],
   },
   {
     id: 14,
@@ -130,7 +129,7 @@ export const eleves = [
     groupeId: 3,
     telephoneParent: "0644455566",
     absences: 0,
-    notes: []
+    notes: [],
   },
   {
     id: 15,
@@ -139,6 +138,6 @@ export const eleves = [
     groupeId: 3,
     telephoneParent: "0655566677",
     absences: 2,
-    notes: [14, 13]
-  }
+    notes: [14, 13],
+  },
 ];
