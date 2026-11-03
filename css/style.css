@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Newsreader", Georgia, serif;
+
+  --color-paper: #f7f5f0; /* fond de page        */
+  --color-card: #ffffff; /* cartes              */
+  --color-line: #e4e0d6; /* bordures            */
+  --color-ink: #1f1e1b; /* texte principal     */
+  --color-muted: #6b6860; /* texte secondaire    */
+  --color-brand: #1f6f5c; /* couleur Nour        */
+  --color-brand-soft: #e3efe9;
+  --color-alert: #b4472e; /* erreur / alerte     */
+  --color-alert-soft: #fbece6;
+  --color-ok: #2f7d4f; /* succès              */
+}
+
+.erreur input {
+  border-color: var(--color-alert);
+}
+.erreur .message {
+  color: var(--color-alert);
+}
+.valide input {
+  border-color: var(--color-ok);
+}
+.valide .message {
+  color: var(--color-ok);
+}
+.alerte {
+  border-color: var(--color-alert);
+  background-color: var(--color-alert-soft);
+}
