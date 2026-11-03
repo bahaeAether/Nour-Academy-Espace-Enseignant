@@ -22,19 +22,13 @@ afficherEleves();
 function afficherEleves() {
   let elevesFiltres = eleves.filter((eleve) => {
     return (
-      isInFullName(eleve, inputRecherche.value) && isInGroup(eleve, filtreGroup.value)
+      isInFullName(eleve, inputRecherche.value) &&
+      isInGroup(eleve, filtreGroup.value)
     );
   });
 
-  console.log(isInGroup(eleves[0], filtreGroup.value));
-
-  // if (tri.value === "nom") {
-  //     elevesFiltres = filtreParNom(elevesFiltres);
-  // }
-
-  // if (tri.value === "moyenne") {
-  //     elevesFiltres = filtreParmoyenne(elevesFiltres);
-  // }
+  if (tri.value === "nom") filtreParNom(elevesFiltres);
+  if (tri.value === "moyenne") filtreParmoyenne(elevesFiltres);
 
   const lignes = elevesFiltres.map(creerLigne);
   listeEleves.replaceChildren(...lignes);
@@ -161,8 +155,29 @@ function isInGroup(eleve, groupId) {
 }
 
 function isInFullName(eleve, subName) {
-  return (
-    eleve.prenom.toLowerCase().includes(subName.toLowerCase()) ||
-    eleve.nom.toLowerCase().includes(subName.toLowerCase())
-  );
+  const fullName = eleve.prenom.toLowerCase() + " " + eleve.nom.toLowerCase();
+  return fullName.includes(subName.toLowerCase().trim());
+}
+
+function filtreParNom(elevesFiltres) {
+  return elevesFiltres.sort((a, b) => {
+    const nomA = a.prenom.trim() + a.nom.trim();
+    const nomB = b.prenom.trim() + b.nom.trim();
+
+    return nomA <= nomB ? -1 : 1;
+  });
+}
+
+function filtreParmoyenne(elevesFiltres) {
+  return elevesFiltres.sort((a, b) => {
+    const moyAstring = calculerMoyenne(a.notes);
+    const moyBstring = calculerMoyenne(b.notes);
+
+    let moyA =
+      moyAstring === "——" ? 0 : Number(moyAstring.replace(" / 20", ""));
+    let moyB =
+      moyBstring === "——" ? 0 : Number(moyBstring.replace(" / 20", ""));
+
+    return moyB - moyA;
+  });
 }
