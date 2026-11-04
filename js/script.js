@@ -15,9 +15,7 @@ inputRecherche.addEventListener("input", afficherEleves);
 filtreGroup.addEventListener("change", afficherEleves);
 tri.addEventListener("change", afficherEleves);
 afficherEleves();
-
-// const lignes = eleves.map(creerLigne);
-// listeEleves.append(...lignes);
+listeEleves.addEventListener("click", absencesEtNotes);
 
 function afficherEleves() {
   let elevesFiltres = eleves.filter((eleve) => {
@@ -109,10 +107,11 @@ function creerLigne(eleve) {
   texteCache.textContent = "Note sur 20";
 
   const inputNote = document.createElement("input");
+  inputNote.id = `input-${eleve.id}`;
   inputNote.type = "number";
   inputNote.min = "0";
   inputNote.max = "20";
-  inputNote.step = "0.5";
+  inputNote.step = "0.25";
   inputNote.placeholder = "Note";
   inputNote.className =
     "h-11 w-full rounded-full border border-line bg-paper px-4 text-sm lg:w-24";
@@ -180,4 +179,63 @@ function trierParMoyenne(elevesFiltres) {
 
     return moyB - moyA;
   });
+}
+
+function absencesEtNotes(event) {
+
+    // Find which button was clicked
+    const boutonAbsent = event.target.closest('.btn-absent');
+    const boutonNote = event.target.closest('.btn-note');
+
+    // Ignore clicks on other elements
+    if (!boutonAbsent && !boutonNote) {
+        return;
+    }
+
+    // Find the student's row
+    const ligne = event.target.closest('li[data-id]');
+
+    // Find the student in the array
+    const eleve = eleves.find(function(eleve) {
+        return eleve.id === Number(ligne.dataset.id);
+    });
+
+    if (!eleve) {
+        return;
+    }
+
+    // Mark student absent
+    if (boutonAbsent) {
+        eleve.absences++;
+
+        // Update only this student's row
+        const nouvelleLigne = creerLigne(eleve);
+        ligne.replaceWith(nouvelleLigne);
+    }
+
+    // Add a grade
+    if (boutonNote) {
+        const input = ligne.querySelector('input');
+        const message = ligne.querySelector('.message');
+        const note = Number(input.value);
+
+        // Validate the grade
+        if (
+            input.value.trim() === '' ||
+            Number.isNaN(note) ||
+            note < 0 ||
+            note > 20
+        ) {
+            message.hidden = false;
+            input.parentElement.classList.add('erreur');
+            return;
+        }
+
+        // Add the grade to the student's notes
+        eleve.notes.push(note);
+
+        // Update only this student's row
+        const nouvelleLigne = creerLigne(eleve);
+        ligne.replaceWith(nouvelleLigne);
+    }
 }
