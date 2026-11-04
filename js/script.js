@@ -8,7 +8,7 @@ const aucunResultat = document.getElementById("aucun-resultat");
 const listeEleves = document.getElementById("liste-eleves");
 
 groupes.forEach((groupe) => {
-  creerOptionGroupe(groupe, filtreGroup);
+  ajouterOptionGroupe(groupe, filtreGroup);
 });
 
 inputRecherche.addEventListener("input", afficherEleves);
@@ -140,12 +140,12 @@ function calculerMoyenne(notes) {
   return moyenne.toFixed(2) + " / 20";
 }
 
-function creerOptionGroupe(groupe, filtreGroup) {
+function ajouterOptionGroupe(groupe, dropdownElement) {
   const option = document.createElement("option");
   option.value = groupe.id;
   option.textContent = groupe.nom;
 
-  filtreGroup.append(option);
+  dropdownElement.append(option);
 }
 
 function isInGroup(eleve, groupId) {
