@@ -1,5 +1,11 @@
 import { groupes, eleves } from "./data.js";
 
+const regexNom = /^[A-Za-zÀ-ÿ\s-]{2,}$/;
+const regexGroupe = /^.+$/;
+const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const regexTelephone = /^(?:(?:06|07)\d{8}|\+212[67]\d{8})$/;
+const regexCode = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
 const filtreGroup = document.getElementById("filtre-groupe");
 const inputRecherche = document.getElementById("recherche");
 const compteur = document.getElementById("compteur");
@@ -7,8 +13,21 @@ const tri = document.getElementById("tri");
 const aucunResultat = document.getElementById("aucun-resultat");
 const listeEleves = document.getElementById("liste-eleves");
 
-groupes.forEach((groupe) => {
-  ajouterOptionGroupe(groupe, filtreGroup);
+const formEleve = document.getElementById("form-eleve");
+const prenom = document.getElementById("prenom");
+const nom = document.getElementById("nom");
+const groupe = document.getElementById("groupe");
+const email = document.getElementById("email");
+const telephone = document.getElementById("telephone");
+const code = document.getElementById("code");
+const codeForce = document.getElementById("code-force");
+
+const succes = document.getElementById("form-succes");
+const erreur = document.getElementById("form-erreur");
+
+groupes.forEach((group) => {
+  ajouterOptionGroupe(group, filtreGroup);
+  ajouterOptionGroupe(group, groupe);
 });
 
 inputRecherche.addEventListener("input", afficherEleves);
@@ -16,6 +35,63 @@ filtreGroup.addEventListener("change", afficherEleves);
 tri.addEventListener("change", afficherEleves);
 afficherEleves();
 listeEleves.addEventListener("click", absencesEtNotes);
+
+prenom.addEventListener("input", function () {
+  validerChamp(
+    prenom,
+    regexNom,
+    document.querySelector("#prenom-msg"),
+    "Minimum 2 caractères : lettres, espaces ou tirets.",
+  );
+});
+
+nom.addEventListener("input", function () {
+  validerChamp(
+    nom,
+    regexNom,
+    document.querySelector("#nom-msg"),
+    "Minimum 2 caractères : lettres, espaces ou tirets.",
+  );
+});
+
+groupe.addEventListener("input", function () {
+  validerChamp(
+    groupe,
+    regexGroupe,
+    document.querySelector("#groupe-msg"),
+    "Veuillez choisir un groupe.",
+  );
+});
+
+email.addEventListener("input", function () {
+  validerChamp(
+    email,
+    regexEmail,
+    document.querySelector("#email-msg"),
+    "Veuillez entrer une adresse email valide.",
+  );
+});
+
+telephone.addEventListener("input", function () {
+  validerChamp(
+    telephone,
+    regexTelephone,
+    document.querySelector("#telephone-msg"),
+    "Numéro invalide. Utilisez 06/07 ou +212 6/7.",
+  );
+});
+
+code.addEventListener("input", function () {
+  validerChamp(
+    code,
+    regexCode,
+    document.querySelector("#code-msg"),
+    "8 caractères minimum, 1 majuscule, 1 chiffre et 1 caractère spécial.",
+  );
+  verifierForceCode();
+});
+
+formEleve.addEventListener("submit", formValidation);
 
 function afficherEleves() {
   let elevesFiltres = eleves.filter((eleve) => {
@@ -182,60 +258,192 @@ function trierParMoyenne(elevesFiltres) {
 }
 
 function absencesEtNotes(event) {
+  const boutonAbsent = event.target.closest(".btn-absent");
+  const boutonNote = event.target.closest(".btn-note");
 
-    // Find which button was clicked
-    const boutonAbsent = event.target.closest('.btn-absent');
-    const boutonNote = event.target.closest('.btn-note');
+  if (!boutonAbsent && !boutonNote) return;
 
-    // Ignore clicks on other elements
-    if (!boutonAbsent && !boutonNote) {
-        return;
+  const ligne = event.target.closest("li[data-id]");
+
+  const eleve = eleves.find(function (eleve) {
+    return eleve.id === Number(ligne.dataset.id);
+  });
+
+  if (!eleve) return;
+
+  if (boutonAbsent) {
+    eleve.absences++;
+    const nouvelleLigne = creerLigne(eleve);
+    ligne.replaceWith(nouvelleLigne);
+  }
+
+  if (boutonNote) {
+    const input = ligne.querySelector("input");
+    const message = ligne.querySelector(".message");
+    const note = Number(input.value);
+
+    if (
+      input.value.trim() === "" ||
+      Number.isNaN(note) ||
+      note < 0 ||
+      note > 20
+    ) {
+      message.hidden = false;
+      input.parentElement.classList.add("erreur");
+      return;
     }
 
-    // Find the student's row
-    const ligne = event.target.closest('li[data-id]');
+    eleve.notes.push(note);
 
-    // Find the student in the array
-    const eleve = eleves.find(function(eleve) {
-        return eleve.id === Number(ligne.dataset.id);
+    const nouvelleLigne = creerLigne(eleve);
+    ligne.replaceWith(nouvelleLigne);
+  }
+}
+
+function validerChamp(champ, regex, messageElement, messageErreur) {
+  const valeur = champ.value.trim();
+  const parent = champ.parentElement;
+
+  if (regex.test(valeur)) {
+    parent.classList.remove("erreur");
+    parent.classList.add("valide");
+
+    messageElement.textContent = "Champ valide.";
+    return true;
+  }
+
+  parent.classList.remove("valide");
+  parent.classList.add("erreur");
+
+  messageElement.textContent = messageErreur;
+  return false;
+}
+
+function verifierForceCode() {
+  let force = 0;
+
+  if (code.value.length >= 8) force++;
+  if (/[A-Z]/.test(code.value) && /\d/.test(code.value)) force++;
+  if (/[^A-Za-z0-9]/.test(code.value)) force++;
+
+  codeForce.value = force;
+}
+
+function formValidation(event) {
+  event.preventDefault();
+
+  const champs = [prenom, nom, groupe, email, telephone, code];
+
+  const validations = [
+    validerChamp(
+      prenom,
+      regexNom,
+      document.querySelector("#prenom-msg"),
+      "2 caractères minimum : lettres, espaces ou tirets.",
+    ),
+
+    validerChamp(
+      nom,
+      regexNom,
+      document.querySelector("#nom-msg"),
+      "2 caractères minimum : lettres, espaces ou tirets.",
+    ),
+
+    validerChamp(
+      groupe,
+      regexGroupe,
+      document.querySelector("#groupe-msg"),
+      "Veuillez choisir un groupe.",
+    ),
+
+    validerChamp(
+      email,
+      regexEmail,
+      document.querySelector("#email-msg"),
+      "Veuillez entrer une adresse email valide.",
+    ),
+
+    validerChamp(
+      telephone,
+      regexTelephone,
+      document.querySelector("#telephone-msg"),
+      "Numéro de téléphone invalide.",
+    ),
+
+    validerChamp(
+      code,
+      regexCode,
+      document.querySelector("#code-msg"),
+      "Code invalide : vérifiez les critères.",
+    ),
+  ];
+
+  if (
+    !validations.every(function (valide) {
+      return valide;
+    })
+  ) {
+    const index = validations.findIndex(function (valide) {
+      return !valide;
     });
 
-    if (!eleve) {
-        return;
-    }
+    champs[index].focus();
+    return;
+  }
 
-    // Mark student absent
-    if (boutonAbsent) {
-        eleve.absences++;
+  const doubles = eleves.some(function (eleve) {
+    return (
+      eleve.groupeId === Number(groupe.value) &&
+      eleve.prenom.toLowerCase() === prenom.value.trim().toLowerCase() &&
+      eleve.nom.toLowerCase() === nom.value.trim().toLowerCase()
+    );
+  });
 
-        // Update only this student's row
-        const nouvelleLigne = creerLigne(eleve);
-        ligne.replaceWith(nouvelleLigne);
-    }
+  if (doubles) {
+    erreur.textContent = "Cet élève existe déjà dans ce groupe.";
+    erreur.hidden = false;
+    return;
+  }
 
-    // Add a grade
-    if (boutonNote) {
-        const input = ligne.querySelector('input');
-        const message = ligne.querySelector('.message');
-        const note = Number(input.value);
+  const nombreEleves = eleves.filter(function (eleve) {
+    return eleve.groupeId === Number(groupe.value);
+  }).length;
 
-        // Validate the grade
-        if (
-            input.value.trim() === '' ||
-            Number.isNaN(note) ||
-            note < 0 ||
-            note > 20
-        ) {
-            message.hidden = false;
-            input.parentElement.classList.add('erreur');
-            return;
-        }
+  if (nombreEleves >= 15) {
+    erreur.textContent = "Ce groupe est complet (15 élèves).";
+    erreur.hidden = false;
+    return;
+  }
 
-        // Add the grade to the student's notes
-        eleve.notes.push(note);
+  const nouvelEleve = {
+    id:
+      Math.max(
+        ...eleves.map(function (eleve) {
+          return eleve.id;
+        }),
+      ) + 1,
 
-        // Update only this student's row
-        const nouvelleLigne = creerLigne(eleve);
-        ligne.replaceWith(nouvelleLigne);
-    }
+    prenom: capitalize(prenom.value.trim()),
+    nom: capitalize(nom.value.trim()),
+    groupeId: Number(groupe.value),
+    telephoneParent: telephone.value.trim(),
+    emailParent: email.value.trim(),
+    absences: 0,
+    notes: [],
+  };
+
+  eleves.push(nouvelEleve);
+  afficherEleves();
+
+  formEleve.reset();
+  codeForce.value = 0;
+  champs.forEach(function (champ) {
+    champ.parentElement.classList.remove("valide", "erreur");
+  });
+  erreur.hidden = true;
+  succes.hidden = false;
+}
+
+function capitalize(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
