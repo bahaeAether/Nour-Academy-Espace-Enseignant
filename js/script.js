@@ -1,5 +1,11 @@
 import { groupes, eleves } from "./data.js";
 
+const regexNom = /^[A-Za-zÀ-ÿ\s-]{2,}$/;
+const regexGroupe = /^.+$/;
+const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const regexTelephone = /^(?:(?:06|07)\d{8}|\+212[67]\d{8})$/;
+const regexCode = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
 const filtreGroup = document.getElementById("filtre-groupe");
 const inputRecherche = document.getElementById("recherche");
 const compteur = document.getElementById("compteur");
@@ -7,8 +13,21 @@ const tri = document.getElementById("tri");
 const aucunResultat = document.getElementById("aucun-resultat");
 const listeEleves = document.getElementById("liste-eleves");
 
-groupes.forEach((groupe) => {
-  ajouterOptionGroupe(groupe, filtreGroup);
+const formEleve = document.getElementById("form-eleve");
+const prenom = document.getElementById("prenom");
+const nom = document.getElementById("nom");
+const groupe = document.getElementById("groupe");
+const email = document.getElementById("email");
+const telephone = document.getElementById("telephone");
+const code = document.getElementById("code");
+const codeForce = document.getElementById('code-force');
+
+const succes = document.getElementById("form-succes");
+const erreur = document.getElementById("form-erreur");
+
+groupes.forEach((group) => {
+  ajouterOptionGroupe(group, filtreGroup);
+  ajouterOptionGroupe(group, groupe);
 });
 
 inputRecherche.addEventListener("input", afficherEleves);
@@ -16,6 +35,61 @@ filtreGroup.addEventListener("change", afficherEleves);
 tri.addEventListener("change", afficherEleves);
 afficherEleves();
 listeEleves.addEventListener("click", absencesEtNotes);
+
+prenom.addEventListener('input', function() {
+    validerChamp(
+        prenom,
+        regexNom,
+        document.querySelector('#prenom-msg'),
+        "Minimum 2 caractères : lettres, espaces ou tirets."
+    );
+});
+
+nom.addEventListener('input', function() {
+    validerChamp(
+        nom,
+        regexNom,
+        document.querySelector('#nom-msg'),
+        "Minimum 2 caractères : lettres, espaces ou tirets."
+    );
+});
+
+groupe.addEventListener('input', function() {
+    validerChamp(
+        groupe,
+        regexGroupe,
+        document.querySelector('#groupe-msg'),
+        "Veuillez choisir un groupe."
+    );
+});
+
+email.addEventListener('input', function() {
+    validerChamp(
+        email,
+        regexEmail,
+        document.querySelector('#email-msg'),
+        'Veuillez entrer une adresse email valide.'
+    );
+});
+
+telephone.addEventListener('input', function() {
+    validerChamp(
+        telephone,
+        regexTelephone,
+        document.querySelector('#telephone-msg'),
+        'Numéro invalide. Utilisez 06/07 ou +212 6/7.'
+    );
+});
+
+code.addEventListener('input', function() {
+    validerChamp(
+        code,
+        regexCode,
+        document.querySelector('#code-msg'),
+        '8 caractères minimum, 1 majuscule, 1 chiffre et 1 caractère spécial.'
+    );
+    verifierForceCode();
+});
 
 function afficherEleves() {
   let elevesFiltres = eleves.filter((eleve) => {
@@ -185,9 +259,7 @@ function absencesEtNotes(event) {
   const boutonAbsent = event.target.closest(".btn-absent");
   const boutonNote = event.target.closest(".btn-note");
 
-  if (!boutonAbsent && !boutonNote) {
-    return;
-  }
+  if (!boutonAbsent && !boutonNote) return;
 
   const ligne = event.target.closest("li[data-id]");
 
@@ -195,14 +267,10 @@ function absencesEtNotes(event) {
     return eleve.id === Number(ligne.dataset.id);
   });
 
-  if (!eleve) {
-    return;
-  }
+  if (!eleve) return;
 
   if (boutonAbsent) {
     eleve.absences++;
-
-    // Update only this student's row
     const nouvelleLigne = creerLigne(eleve);
     ligne.replaceWith(nouvelleLigne);
   }
@@ -228,4 +296,33 @@ function absencesEtNotes(event) {
     const nouvelleLigne = creerLigne(eleve);
     ligne.replaceWith(nouvelleLigne);
   }
+}
+
+function validerChamp(champ, regex, messageElement, messageErreur) {
+    const valeur = champ.value.trim();
+    const parent = champ.parentElement;
+
+    if (regex.test(valeur)) {
+        parent.classList.remove('erreur');
+        parent.classList.add('valide');
+
+        messageElement.textContent = "Champ valide.";
+        return true;
+    }
+
+    parent.classList.remove('valide');
+    parent.classList.add('erreur');
+
+    messageElement.textContent = messageErreur;
+    return false;
+}
+
+function verifierForceCode() {
+    let force = 0;
+
+    if (code.value.length >= 8) force++;
+    if (/[A-Z]/.test(code.value) && /\d/.test(code.value)) force++;
+    if (/[^A-Za-z0-9]/.test(code.value)) force++;
+
+    codeForce.value = force;
 }
