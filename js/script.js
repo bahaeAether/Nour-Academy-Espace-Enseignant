@@ -20,7 +20,7 @@ const groupe = document.getElementById("groupe");
 const email = document.getElementById("email");
 const telephone = document.getElementById("telephone");
 const code = document.getElementById("code");
-const codeForce = document.getElementById('code-force');
+const codeForce = document.getElementById("code-force");
 
 const succes = document.getElementById("form-succes");
 const erreur = document.getElementById("form-erreur");
@@ -36,60 +36,62 @@ tri.addEventListener("change", afficherEleves);
 afficherEleves();
 listeEleves.addEventListener("click", absencesEtNotes);
 
-prenom.addEventListener('input', function() {
-    validerChamp(
-        prenom,
-        regexNom,
-        document.querySelector('#prenom-msg'),
-        "Minimum 2 caractères : lettres, espaces ou tirets."
-    );
+prenom.addEventListener("input", function () {
+  validerChamp(
+    prenom,
+    regexNom,
+    document.querySelector("#prenom-msg"),
+    "Minimum 2 caractères : lettres, espaces ou tirets.",
+  );
 });
 
-nom.addEventListener('input', function() {
-    validerChamp(
-        nom,
-        regexNom,
-        document.querySelector('#nom-msg'),
-        "Minimum 2 caractères : lettres, espaces ou tirets."
-    );
+nom.addEventListener("input", function () {
+  validerChamp(
+    nom,
+    regexNom,
+    document.querySelector("#nom-msg"),
+    "Minimum 2 caractères : lettres, espaces ou tirets.",
+  );
 });
 
-groupe.addEventListener('input', function() {
-    validerChamp(
-        groupe,
-        regexGroupe,
-        document.querySelector('#groupe-msg'),
-        "Veuillez choisir un groupe."
-    );
+groupe.addEventListener("input", function () {
+  validerChamp(
+    groupe,
+    regexGroupe,
+    document.querySelector("#groupe-msg"),
+    "Veuillez choisir un groupe.",
+  );
 });
 
-email.addEventListener('input', function() {
-    validerChamp(
-        email,
-        regexEmail,
-        document.querySelector('#email-msg'),
-        'Veuillez entrer une adresse email valide.'
-    );
+email.addEventListener("input", function () {
+  validerChamp(
+    email,
+    regexEmail,
+    document.querySelector("#email-msg"),
+    "Veuillez entrer une adresse email valide.",
+  );
 });
 
-telephone.addEventListener('input', function() {
-    validerChamp(
-        telephone,
-        regexTelephone,
-        document.querySelector('#telephone-msg'),
-        'Numéro invalide. Utilisez 06/07 ou +212 6/7.'
-    );
+telephone.addEventListener("input", function () {
+  validerChamp(
+    telephone,
+    regexTelephone,
+    document.querySelector("#telephone-msg"),
+    "Numéro invalide. Utilisez 06/07 ou +212 6/7.",
+  );
 });
 
-code.addEventListener('input', function() {
-    validerChamp(
-        code,
-        regexCode,
-        document.querySelector('#code-msg'),
-        '8 caractères minimum, 1 majuscule, 1 chiffre et 1 caractère spécial.'
-    );
-    verifierForceCode();
+code.addEventListener("input", function () {
+  validerChamp(
+    code,
+    regexCode,
+    document.querySelector("#code-msg"),
+    "8 caractères minimum, 1 majuscule, 1 chiffre et 1 caractère spécial.",
+  );
+  verifierForceCode();
 });
+
+formEleve.addEventListener("submit", formValidation);
 
 function afficherEleves() {
   let elevesFiltres = eleves.filter((eleve) => {
@@ -299,30 +301,149 @@ function absencesEtNotes(event) {
 }
 
 function validerChamp(champ, regex, messageElement, messageErreur) {
-    const valeur = champ.value.trim();
-    const parent = champ.parentElement;
+  const valeur = champ.value.trim();
+  const parent = champ.parentElement;
 
-    if (regex.test(valeur)) {
-        parent.classList.remove('erreur');
-        parent.classList.add('valide');
+  if (regex.test(valeur)) {
+    parent.classList.remove("erreur");
+    parent.classList.add("valide");
 
-        messageElement.textContent = "Champ valide.";
-        return true;
-    }
+    messageElement.textContent = "Champ valide.";
+    return true;
+  }
 
-    parent.classList.remove('valide');
-    parent.classList.add('erreur');
+  parent.classList.remove("valide");
+  parent.classList.add("erreur");
 
-    messageElement.textContent = messageErreur;
-    return false;
+  messageElement.textContent = messageErreur;
+  return false;
 }
 
 function verifierForceCode() {
-    let force = 0;
+  let force = 0;
 
-    if (code.value.length >= 8) force++;
-    if (/[A-Z]/.test(code.value) && /\d/.test(code.value)) force++;
-    if (/[^A-Za-z0-9]/.test(code.value)) force++;
+  if (code.value.length >= 8) force++;
+  if (/[A-Z]/.test(code.value) && /\d/.test(code.value)) force++;
+  if (/[^A-Za-z0-9]/.test(code.value)) force++;
 
-    codeForce.value = force;
+  codeForce.value = force;
+}
+
+function formValidation(event) {
+  event.preventDefault();
+
+  const champs = [prenom, nom, groupe, email, telephone, code];
+
+  const validations = [
+    validerChamp(
+      prenom,
+      regexNom,
+      document.querySelector("#prenom-msg"),
+      "2 caractères minimum : lettres, espaces ou tirets.",
+    ),
+
+    validerChamp(
+      nom,
+      regexNom,
+      document.querySelector("#nom-msg"),
+      "2 caractères minimum : lettres, espaces ou tirets.",
+    ),
+
+    validerChamp(
+      groupe,
+      regexGroupe,
+      document.querySelector("#groupe-msg"),
+      "Veuillez choisir un groupe.",
+    ),
+
+    validerChamp(
+      email,
+      regexEmail,
+      document.querySelector("#email-msg"),
+      "Veuillez entrer une adresse email valide.",
+    ),
+
+    validerChamp(
+      telephone,
+      regexTelephone,
+      document.querySelector("#telephone-msg"),
+      "Numéro de téléphone invalide.",
+    ),
+
+    validerChamp(
+      code,
+      regexCode,
+      document.querySelector("#code-msg"),
+      "Code invalide : vérifiez les critères.",
+    ),
+  ];
+
+  if (
+    !validations.every(function (valide) {
+      return valide;
+    })
+  ) {
+    const index = validations.findIndex(function (valide) {
+      return !valide;
+    });
+
+    champs[index].focus();
+    return;
+  }
+
+  const doubles = eleves.some(function (eleve) {
+    return (
+      eleve.groupeId === Number(groupe.value) &&
+      eleve.prenom.toLowerCase() === prenom.value.trim().toLowerCase() &&
+      eleve.nom.toLowerCase() === nom.value.trim().toLowerCase()
+    );
+  });
+
+  if (doubles) {
+    erreur.textContent = "Cet élève existe déjà dans ce groupe.";
+    erreur.hidden = false;
+    return;
+  }
+
+  const nombreEleves = eleves.filter(function (eleve) {
+    return eleve.groupeId === Number(groupe.value);
+  }).length;
+
+  if (nombreEleves >= 15) {
+    erreur.textContent = "Ce groupe est complet (15 élèves).";
+    erreur.hidden = false;
+    return;
+  }
+
+  const nouvelEleve = {
+    id:
+      Math.max(
+        ...eleves.map(function (eleve) {
+          return eleve.id;
+        }),
+      ) + 1,
+
+    prenom: capitalize(prenom.value.trim()),
+    nom: capitalize(nom.value.trim()),
+    groupeId: Number(groupe.value),
+    telephoneParent: telephone.value.trim(),
+    emailParent: email.value.trim(),
+    absences: 0,
+    notes: [],
+  };
+
+  eleves.push(nouvelEleve);
+  afficherEleves();
+
+  formEleve.reset();
+  codeForce.value = 0;
+  champs.forEach(function (champ) {
+    champ.parentElement.classList.remove("valide", "erreur");
+  });
+  erreur.hidden = true;
+  succes.hidden = false;
+}
+
+function capitalize(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
