@@ -42,14 +42,15 @@ const ficheNom = document.querySelector("#fiche-nom");
 const ficheGroupe = document.querySelector("#fiche-groupe");
 const ficheNotes = document.querySelector("#fiche-notes");
 
+// affichage
 groupes.forEach((group) => {
   ajouterOptionGroupe(group, filtreGroup);
   ajouterOptionGroupe(group, groupe);
 });
-
 afficherEleves();
 mettreAJourBilan();
 
+// listeners
 inputRecherche.addEventListener("input", afficherEleves);
 filtreGroup.addEventListener("change", afficherEleves);
 tri.addEventListener("change", afficherEleves);
@@ -110,6 +111,7 @@ dialogFiche.addEventListener("click", function (event) {
   }
 });
 
+// fonctions
 function afficherEleves() {
   let elevesFiltres = eleves.filter((eleve) => {
     return (
