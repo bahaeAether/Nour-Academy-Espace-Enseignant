@@ -36,17 +36,24 @@ const bilanMeilleur = document.querySelector("#bilan-meilleur");
 const listeParents = document.querySelector("#liste-parents");
 const aucuneAlerte = document.querySelector("#aucune-alerte");
 
+// fiche d'un élève
+const dialogFiche = document.querySelector("#fiche");
+const ficheNom = document.querySelector("#fiche-nom");
+const ficheGroupe = document.querySelector("#fiche-groupe");
+const ficheNotes = document.querySelector("#fiche-notes");
+
 groupes.forEach((group) => {
   ajouterOptionGroupe(group, filtreGroup);
   ajouterOptionGroupe(group, groupe);
 });
 
+afficherEleves();
+mettreAJourBilan();
+
 inputRecherche.addEventListener("input", afficherEleves);
 filtreGroup.addEventListener("change", afficherEleves);
 tri.addEventListener("change", afficherEleves);
-afficherEleves();
-listeEleves.addEventListener("click", absencesEtNotes);
-
+listeEleves.addEventListener("click", absencesNotesFiche);
 prenom.addEventListener("input", function () {
   validerChamp(
     prenom,
@@ -55,7 +62,6 @@ prenom.addEventListener("input", function () {
     "Minimum 2 caractères : lettres, espaces ou tirets.",
   );
 });
-
 nom.addEventListener("input", function () {
   validerChamp(
     nom,
@@ -64,7 +70,6 @@ nom.addEventListener("input", function () {
     "Minimum 2 caractères : lettres, espaces ou tirets.",
   );
 });
-
 groupe.addEventListener("input", function () {
   validerChamp(
     groupe,
@@ -73,7 +78,6 @@ groupe.addEventListener("input", function () {
     "Veuillez choisir un groupe.",
   );
 });
-
 email.addEventListener("input", function () {
   validerChamp(
     email,
@@ -82,7 +86,6 @@ email.addEventListener("input", function () {
     "Veuillez entrer une adresse email valide.",
   );
 });
-
 telephone.addEventListener("input", function () {
   validerChamp(
     telephone,
@@ -91,7 +94,6 @@ telephone.addEventListener("input", function () {
     "Numéro invalide. Utilisez 06/07 ou +212 6/7.",
   );
 });
-
 code.addEventListener("input", function () {
   validerChamp(
     code,
@@ -101,10 +103,12 @@ code.addEventListener("input", function () {
   );
   verifierForceCode();
 });
-
 formEleve.addEventListener("submit", formValidation);
-
-mettreAJourBilan();
+dialogFiche.addEventListener("click", function (event) {
+  if (event.target === dialogFiche) {
+    dialogFiche.close();
+  }
+});
 
 function afficherEleves() {
   let elevesFiltres = eleves.filter((eleve) => {
@@ -144,7 +148,7 @@ function creerLigne(eleve) {
   const btnFiche = document.createElement("button");
   btnFiche.type = "button";
   btnFiche.className =
-    "btn-fiche flex min-h-11 flex-1 items-center gap-3 text-left";
+    "btn-fiche flex min-h-11 flex-1 items-center gap-3 text-left cursor-pointer";
 
   const avatar = document.createElement("span");
   avatar.className =
@@ -275,11 +279,12 @@ function trierParMoyenne(elevesFiltres) {
   });
 }
 
-function absencesEtNotes(event) {
+function absencesNotesFiche(event) {
   const boutonAbsent = event.target.closest(".btn-absent");
   const boutonNote = event.target.closest(".btn-note");
+  const boutonFiche = event.target.closest(".btn-fiche");
 
-  if (!boutonAbsent && !boutonNote) return;
+  if (!boutonAbsent && !boutonNote && !boutonFiche) return;
 
   const ligne = event.target.closest("li[data-id]");
 
@@ -288,6 +293,11 @@ function absencesEtNotes(event) {
   });
 
   if (!eleve) return;
+
+  if (boutonFiche) {
+    afficherFiche(eleve);
+    return;
+  }
 
   if (boutonAbsent) {
     eleve.absences++;
@@ -536,4 +546,27 @@ function mettreAJourBilan() {
 
     bilanMeilleur.textContent = `${meilleurEleve.prenom} ${meilleurEleve.nom} — ${calculerMoyenne(meilleurEleve.notes)}`;
   } else bilanMeilleur.textContent = "——";
+}
+
+function afficherFiche(eleve) {
+  ficheNom.textContent = eleve.prenom + " " + eleve.nom;
+
+  const groupeEleve = groupes.find(function (groupe) {
+    return groupe.id === eleve.groupeId;
+  });
+
+  ficheGroupe.textContent = groupeEleve.nom + " — " + groupeEleve.cours;
+
+  ficheNotes.replaceChildren();
+
+  eleve.notes.forEach(function (note) {
+    const li = document.createElement("li");
+
+    li.className = "rounded-full bg-paper px-3 py-1";
+    li.textContent = note.toLocaleString("fr-FR");
+
+    ficheNotes.append(li);
+  });
+
+  dialogFiche.showModal();
 }
