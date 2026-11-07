@@ -290,51 +290,51 @@
 
             <!-- Ligne normale -->
             <li class="rounded-2xl border border-line bg-card p-3" data-id="1">
-                <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
-                    <button
-                        type="button"
-                        class="btn-fiche flex min-h-11 flex-1 items-center gap-3 text-left"
-                    >
-                        <span
-                            class="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft text-sm font-semibold text-brand"
-                            >SA</span
-                        >
-                        <span class="min-w-0 flex-1">
-                            <span class="block truncate font-medium">Sara Alaoui</span>
-                            <span class="block text-sm text-muted">1 absence</span>
-                        </span>
-                        <span class="font-serif text-xl">13,5 / 20</span>
-                    </button>
+              <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+                <button
+                  type="button"
+                  class="btn-fiche flex min-h-11 flex-1 items-center gap-3 text-left"
+                >
+                  <span
+                    class="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft text-sm font-semibold text-brand"
+                    >SA</span
+                  >
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-medium">Sara Alaoui</span>
+                    <span class="block text-sm text-muted">1 absence</span>
+                  </span>
+                  <span class="font-serif text-xl">13,5 / 20</span>
+                </button>
 
-                    <div class="flex gap-2">
-                    <button
-                        type="button"
-                        class="btn-absent h-11 rounded-full border border-line px-3 sm:px-4 text-sm font-medium hover:bg-paper"
-                    >
-                        Absent
-                    </button>
-                    <label class="flex-1">
-                        <span class="sr-only">Note sur 20</span>
-                        <input
-                        type="number"
-                        min="0"
-                        max="20"
-                        step="0.5"
-                        placeholder="Note"
-                        class="h-11 w-full rounded-full border border-line bg-paper px-4 text-sm lg:w-24"
-                        />
-                    </label>
-                    <button
-                        type="button"
-                        class="btn-note h-11 rounded-full bg-ink px-3 sm:px-4 text-sm font-medium text-white hover:bg-brand"
-                    >
-                        Ajouter la note
-                    </button>
-                    </div>
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    class="btn-absent h-11 rounded-full border border-line px-3 sm:px-4 text-sm font-medium hover:bg-paper"
+                  >
+                    Absent
+                  </button>
+                  <label class="flex-1">
+                    <span class="sr-only">Note sur 20</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="20"
+                      step="0.5"
+                      placeholder="Note"
+                      class="h-11 w-full rounded-full border border-line bg-paper px-4 text-sm lg:w-24"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    class="btn-note h-11 rounded-full bg-ink px-3 sm:px-4 text-sm font-medium text-white hover:bg-brand"
+                  >
+                    Ajouter la note
+                  </button>
                 </div>
-                <p class="message mt-2 text-xs text-alert" hidden>
-                    La note doit être un nombre entre 0 et 20.
-                </p>
+              </div>
+              <p class="message mt-2 text-xs text-alert" hidden>
+                La note doit être un nombre entre 0 et 20.
+              </p>
             </li>
 
             <!-- Ligne sans note + note refusée (message visible) -->
@@ -534,11 +534,10 @@
     >
       <div class="flex items-start justify-between gap-4">
         <div>
-          <h2 id="fiche-nom" class="font-serif text-2xl">Sara Alaoui</h2>
-          <p id="fiche-groupe" class="text-sm text-muted">
-            2e Bac — Mathématiques
-          </p>
+          <h2 id="fiche-nom" class="font-serif text-2xl">—</h2>
+          <p id="fiche-groupe" class="text-sm text-muted">—</p>
         </div>
+
         <form method="dialog">
           <button
             class="grid size-11 place-items-center rounded-full hover:bg-paper"
@@ -555,9 +554,9 @@
         Toutes les notes
       </h3>
       <ul id="fiche-notes" class="mt-2 flex flex-wrap gap-2">
-        <li class="rounded-full bg-paper px-3 py-1">14</li>
+        <!-- <li class="rounded-full bg-paper px-3 py-1">14</li>
         <li class="rounded-full bg-paper px-3 py-1">12,5</li>
-        <li class="rounded-full bg-paper px-3 py-1">14</li>
+        <li class="rounded-full bg-paper px-3 py-1">14</li> -->
       </ul>
     </dialog>
 

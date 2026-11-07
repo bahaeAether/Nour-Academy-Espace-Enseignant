@@ -1,11 +1,13 @@
 import { groupes, eleves } from "./data.js";
 
+// regex
 const regexNom = /^[A-Za-zÀ-ÿ\s-]{2,}$/;
 const regexGroupe = /^.+$/;
 const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const regexTelephone = /^(?:(?:06|07)\d{8}|\+212[67]\d{8})$/;
 const regexCode = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
+// filtres
 const filtreGroup = document.getElementById("filtre-groupe");
 const inputRecherche = document.getElementById("recherche");
 const compteur = document.getElementById("compteur");
@@ -13,6 +15,7 @@ const tri = document.getElementById("tri");
 const aucunResultat = document.getElementById("aucun-resultat");
 const listeEleves = document.getElementById("liste-eleves");
 
+// formulaire
 const formEleve = document.getElementById("form-eleve");
 const prenom = document.getElementById("prenom");
 const nom = document.getElementById("nom");
@@ -24,6 +27,14 @@ const codeForce = document.getElementById("code-force");
 
 const succes = document.getElementById("form-succes");
 const erreur = document.getElementById("form-erreur");
+
+// statistiques
+const bilanMoyenne = document.querySelector("#bilan-moyenne");
+const bilanAbsences = document.querySelector("#bilan-absences");
+const bilanAlertes = document.querySelector("#bilan-alertes");
+const bilanMeilleur = document.querySelector("#bilan-meilleur");
+const listeParents = document.querySelector("#liste-parents");
+const aucuneAlerte = document.querySelector("#aucune-alerte");
 
 groupes.forEach((group) => {
   ajouterOptionGroupe(group, filtreGroup);
@@ -93,6 +104,8 @@ code.addEventListener("input", function () {
 
 formEleve.addEventListener("submit", formValidation);
 
+mettreAJourBilan();
+
 function afficherEleves() {
   let elevesFiltres = eleves.filter((eleve) => {
     return (
@@ -108,6 +121,8 @@ function afficherEleves() {
   listeEleves.replaceChildren(...lignes);
   compteur.textContent = elevesFiltres.length + " élève(s)";
   aucunResultat.hidden = elevesFiltres.length !== 0;
+
+  mettreAJourBilan();
 }
 
 function creerLigne(eleve) {
@@ -172,7 +187,7 @@ function creerLigne(eleve) {
   const btnAbsent = document.createElement("button");
   btnAbsent.type = "button";
   btnAbsent.className =
-    "btn-absent h-11 rounded-full border border-line px-3 sm:px-4 text-sm font-medium hover:bg-paper";
+    "btn-absent h-11 rounded-full border border-line px-3 sm:px-4 text-sm font-medium hover:bg-paper cursor-pointer";
   btnAbsent.textContent = "Absent";
 
   const label = document.createElement("label");
@@ -197,7 +212,7 @@ function creerLigne(eleve) {
   const btnNote = document.createElement("button");
   btnNote.type = "button";
   btnNote.className =
-    "btn-note h-11 rounded-full bg-ink px-3 sm:px-4 text-sm font-medium text-white hover:bg-brand";
+    "btn-note h-11 rounded-full bg-ink px-3 sm:px-4 text-sm font-medium text-white hover:bg-brand cursor-pointer";
   btnNote.textContent = "Ajouter la note";
 
   actions.append(btnAbsent, label, btnNote);
@@ -210,10 +225,13 @@ function creerLigne(eleve) {
 function calculerMoyenne(notes) {
   if (notes.length === 0) return "——";
 
-  const total = notes.reduce((somme, note) => somme + note, 0);
-  const moyenne = total / notes.length;
+  return calculerMoyenneNumber(notes).toFixed(2) + " / 20";
+}
 
-  return moyenne.toFixed(2) + " / 20";
+function calculerMoyenneNumber(notes) {
+  const total = notes.reduce((somme, note) => somme + note, 0);
+
+  return total / notes.length;
 }
 
 function ajouterOptionGroupe(groupe, dropdownElement) {
@@ -298,6 +316,8 @@ function absencesEtNotes(event) {
     const nouvelleLigne = creerLigne(eleve);
     ligne.replaceWith(nouvelleLigne);
   }
+
+  mettreAJourBilan();
 }
 
 function validerChamp(champ, regex, messageElement, messageErreur) {
@@ -446,4 +466,74 @@ function formValidation(event) {
 
 function capitalize(string) {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
+
+function mettreAJourBilan() {
+  let elevesFiltres = eleves;
+
+  if (filtreGroup.value !== "") {
+    elevesFiltres = eleves.filter(function (eleve) {
+      return eleve.groupeId === Number(filtreGroup.value);
+    });
+  }
+
+  const totalNotes = [];
+  elevesFiltres.forEach(function (eleve) {
+    return totalNotes.push(...eleve.notes);
+  });
+
+  bilanMoyenne.textContent = calculerMoyenne(totalNotes);
+
+  const totalAbsences = elevesFiltres.reduce(function (total, eleve) {
+    return total + eleve.absences;
+  }, 0);
+
+  bilanAbsences.textContent = totalAbsences;
+
+  const elevesEnAlerte = elevesFiltres.filter(function (eleve) {
+    return eleve.absences >= 3;
+  });
+
+  bilanAlertes.textContent = elevesEnAlerte.length;
+
+  const parents = elevesEnAlerte.map(function (eleve) {
+    return eleve.prenom + " " + eleve.nom + " — " + eleve.telephoneParent;
+  });
+
+  listeParents.replaceChildren();
+
+  parents.forEach(function (parent) {
+    const li = document.createElement("li");
+
+    li.className = "rounded-xl bg-card px-3 py-2 ring-1 ring-line";
+    li.textContent = parent;
+
+    listeParents.append(li);
+  });
+
+  if (
+    elevesFiltres.every(function (eleve) {
+      return eleve.absences < 3;
+    })
+  ) {
+    aucuneAlerte.hidden = false;
+  } else {
+    aucuneAlerte.hidden = true;
+  }
+
+  const elevesAvecNotes = elevesFiltres.filter(function (eleve) {
+    return eleve.notes.length > 0;
+  });
+
+  if (elevesAvecNotes.length > 0) {
+    const meilleurEleve = elevesAvecNotes.reduce(function (meilleur, eleve) {
+      const eleveMoyenne = calculerMoyenneNumber(eleve.notes);
+      const meilleurMoyenne = calculerMoyenneNumber(meilleur.notes);
+
+      if (eleveMoyenne > meilleurMoyenne) return eleve;
+      return meilleur;
+    }, elevesAvecNotes[0]);
+
+    bilanMeilleur.textContent = `${meilleurEleve.prenom} ${meilleurEleve.nom} — ${calculerMoyenne(meilleurEleve.notes)}`;
+  } else bilanMeilleur.textContent = "——";
 }
